@@ -170,16 +170,10 @@ public class MLText extends HashMap<Locale, String>
             // No close matches for the locale - go for the default locale
             locale = I18NUtil.getLocale();
             match = I18NUtil.getNearestLocale(locale, options);
-            if (match == null)
-            {
-                // just get any locale
-                match = I18NUtil.getNearestLocale(null, options);
-            }
         }
         // Did we get a match
         if (match == null)
         {
-            // We could find no locale matches
             return null;
         }
         else
