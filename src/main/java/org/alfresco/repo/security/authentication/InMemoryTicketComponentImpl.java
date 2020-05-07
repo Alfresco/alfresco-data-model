@@ -169,7 +169,11 @@ public class InMemoryTicketComponentImpl implements TicketComponent
      */
     private void removeFromCache (String ticketId)
     {
-        Ticket ticket = ticketsCache.get(ticketId);
+        Ticket ticket = null;
+        if(ticketId != null)
+        {
+            ticket = ticketsCache.get(ticketId);
+        }
 
         if (logger.isTraceEnabled())
         {
@@ -177,15 +181,18 @@ public class InMemoryTicketComponentImpl implements TicketComponent
         }
         ticketsCache.remove(ticketId);
 
-        String username = ticket.getUserName();
-        String actualUserTicketIdFromCache = usernameToTicketIdCache.get(username);
-        if(ticketId != null && ticketId.equals(actualUserTicketIdFromCache))
+        if(ticket != null)
         {
-            if (logger.isTraceEnabled())
+            String username = ticket.getUserName();
+            String actualUserTicketIdFromCache = usernameToTicketIdCache.get(username);
+            if(ticketId.equals(actualUserTicketIdFromCache))
             {
-                logger.trace("Removing ticketId from usernameToTicketIdCache for: " + username);
+                if (logger.isTraceEnabled())
+                {
+                    logger.trace("Removing ticketId from usernameToTicketIdCache for: " + username);
+                }
+                usernameToTicketIdCache.remove(username);
             }
-            usernameToTicketIdCache.remove(username);
         }
     }
 
