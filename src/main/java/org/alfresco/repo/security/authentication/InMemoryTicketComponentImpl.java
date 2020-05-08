@@ -84,7 +84,7 @@ public class InMemoryTicketComponentImpl implements TicketComponent
     }
 
     /**
-     * Set the usernameKey cache as secondary map for supporting cache clustering
+     * Set the usernameToTicketIdCache as secondary map for supporting cache clustering
      */
     public void setUsernameToTicketIdCache (SimpleCache<String, String> usernameToTicketIdCache) {
         this.usernameToTicketIdCache = usernameToTicketIdCache;
