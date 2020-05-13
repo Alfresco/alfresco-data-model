@@ -181,6 +181,12 @@ public interface QueryConstants
     
     public static final String FIELD_SOLR_NOLOCALE_TOKENISED_SUFFIX = ".__";
 
+    public static final String FIELD_SOLR_UNIT_OF_TIME_DAY_SUFFIX = ".unit_of_time_day";
+
+    public static final String FIELD_SOLR_UNIT_OF_TIME_MONTH_SUFFIX = ".unit_of_time_day";
+
+    public static final String FIELD_SOLR_UNIT_OF_TIME_YEAR_SUFFIX = ".unit_of_time_day";
+
     public static final String FIELD_SITE = "SITE";
     
     public static final String FIELD_GEO = "GEO";
