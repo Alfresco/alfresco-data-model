@@ -389,15 +389,15 @@ public class QueryParserUtils implements QueryConstants
             propertyFieldName = field.substring(field.startsWith("@") ? 1 : 0, field.length() - FIELD_SOLR_UNIT_OF_TIME_SECOND_SUFFIX.length());
             ending = FIELD_SOLR_UNIT_OF_TIME_DAY_SUFFIX;
         }
-        else if (field.endsWith(FIELD_SOLR_UNIT_OF_TIME_MINUTE_SUFFIX))
+        else if (field.endsWith(FIELD_SOLR_UNIT_OF_TIME_SECOND_SUFFIX))
         {
             propertyFieldName = field.substring(field.startsWith("@") ? 1 : 0, field.length() - FIELD_SOLR_UNIT_OF_TIME_MINUTE_SUFFIX.length());
-            ending = FIELD_SOLR_UNIT_OF_TIME_DAY_SUFFIX;
+            ending = FIELD_SOLR_UNIT_OF_TIME_MINUTE_SUFFIX;
         }
         else if (field.endsWith(FIELD_SOLR_UNIT_OF_TIME_HOUR_SUFFIX))
         {
             propertyFieldName = field.substring(field.startsWith("@") ? 1 : 0, field.length() - FIELD_SOLR_UNIT_OF_TIME_HOUR_SUFFIX.length());
-            ending = FIELD_SOLR_UNIT_OF_TIME_DAY_SUFFIX;
+            ending = FIELD_SOLR_UNIT_OF_TIME_HOUR_SUFFIX;
         }
         else if (field.endsWith(FIELD_SOLR_UNIT_OF_TIME_DAY_SUFFIX))
         {
