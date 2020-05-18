@@ -14,7 +14,7 @@ branches:
     - /support\/.*/
     - fix/ACS-22_code_enhance_8-18-N
 
-install: travis_retry mvn install -DskipTests=true -B -V
+install: travis_retry echo "java home is $JAVA_HOME" && mvn install -DskipTests=true -B -V
 
 stages:
   - test
@@ -24,7 +24,7 @@ jobs:
   include:
     - stage: test
       name: "Build and test"
-      script: travis_retry echo $JAVA_HOME
+      script: travis_retry mvn test
     - name: "WhiteSource scan"
       # only on SP branches or master and if it is not a PR
       if: fork = false AND (branch = master OR branch =~ /support\/SP\/.*/) AND type != pull_request
