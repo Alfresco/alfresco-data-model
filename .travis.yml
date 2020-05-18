@@ -14,7 +14,7 @@ branches:
     - /support\/.*/
     - fix/ACS-22_code_enhance_8-18-N
 
-install: travis_retry echo "java home is $JAVA_HOME" && mvn install -DskipTests=true -B -V
+install: travis_retry ls -l /usr/lib/jvm && mvn install -DskipTests=true -B -V
 
 stages:
   - test
