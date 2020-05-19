@@ -12,6 +12,7 @@ branches:
   only:
     - master
     - /support\/.*/
+    - feature/SEARCH-2166
 
 install: travis_retry mvn install -DskipTests=true -B -V
 
