@@ -503,10 +503,9 @@ public class AlfrescoFunctionEvaluationContext implements FunctionEvaluationCont
         {
             QName propertyField = QName.createQName(field.substring(0, field.length() - QueryConstants.FIELD_SOLR_UNIT_OF_TIME_SECOND_SUFFIX.length()));
             PropertyDefinition propertyDef = dictionaryService.getProperty(propertyField);
-            if (!propertyDef.getDataType().getName().equals(DataTypeDefinition.DATE) &&
-                    !propertyDef.getDataType().getName().equals(DataTypeDefinition.DATETIME))
+            if (!propertyDef.getDataType().getName().equals(DataTypeDefinition.DATETIME))
             {
-                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_SECOND_SUFFIX+" only supported on date properties");
+                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_SECOND_SUFFIX+" only supported on datetime properties");
             }
             else
             {
@@ -517,10 +516,9 @@ public class AlfrescoFunctionEvaluationContext implements FunctionEvaluationCont
         {
             QName propertyField = QName.createQName(field.substring(0, field.length() - QueryConstants.FIELD_SOLR_UNIT_OF_TIME_MINUTE_SUFFIX.length()));
             PropertyDefinition propertyDef = dictionaryService.getProperty(propertyField);
-            if (!propertyDef.getDataType().getName().equals(DataTypeDefinition.DATE) &&
-                    !propertyDef.getDataType().getName().equals(DataTypeDefinition.DATETIME))
+            if (!propertyDef.getDataType().getName().equals(DataTypeDefinition.DATETIME))
             {
-                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_MINUTE_SUFFIX+" only supported on date properties");
+                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_MINUTE_SUFFIX+" only supported on datetime properties");
             }
             else
             {
@@ -531,10 +529,9 @@ public class AlfrescoFunctionEvaluationContext implements FunctionEvaluationCont
         {
             QName propertyField = QName.createQName(field.substring(0, field.length() - QueryConstants.FIELD_SOLR_UNIT_OF_TIME_HOUR_SUFFIX.length()));
             PropertyDefinition propertyDef = dictionaryService.getProperty(propertyField);
-            if (!propertyDef.getDataType().getName().equals(DataTypeDefinition.DATE) &&
-            !propertyDef.getDataType().getName().equals(DataTypeDefinition.DATETIME))
+            if (!propertyDef.getDataType().getName().equals(DataTypeDefinition.DATETIME))
             {
-                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_HOUR_SUFFIX+" only supported on date properties");
+                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_HOUR_SUFFIX+" only supported on datetime properties");
             }
             else
             {
