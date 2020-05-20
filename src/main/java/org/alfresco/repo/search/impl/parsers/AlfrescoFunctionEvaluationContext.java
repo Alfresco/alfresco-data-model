@@ -545,7 +545,7 @@ public class AlfrescoFunctionEvaluationContext implements FunctionEvaluationCont
             if (!propertyDef.getDataType().getName().equals(DataTypeDefinition.DATE) &&
                     !propertyDef.getDataType().getName().equals(DataTypeDefinition.DATETIME))
             {
-                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_DAY_SUFFIX+" only supported on date properties");
+                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_DAY_SUFFIX+" only supported on date and datetime properties");
             }
             else
             {
@@ -559,7 +559,7 @@ public class AlfrescoFunctionEvaluationContext implements FunctionEvaluationCont
             if (!propertyDef.getDataType().getName().equals(DataTypeDefinition.DATE) &&
                     !propertyDef.getDataType().getName().equals(DataTypeDefinition.DATETIME))
             {
-                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_MONTH_SUFFIX+" only supported on date properties");
+                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_MONTH_SUFFIX+" only supported on date and datetime properties");
             }
             else
             {
@@ -573,7 +573,7 @@ public class AlfrescoFunctionEvaluationContext implements FunctionEvaluationCont
             if (!propertyDef.getDataType().getName().equals(DataTypeDefinition.DATE) &&
                     !propertyDef.getDataType().getName().equals(DataTypeDefinition.DATETIME))
             {
-                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_YEAR_SUFFIX+" only supported on date properties");
+                throw new FTSQueryException(QueryConstants.FIELD_SOLR_UNIT_OF_TIME_YEAR_SUFFIX+" only supported on date and datetime properties");
             }
             else
             {
