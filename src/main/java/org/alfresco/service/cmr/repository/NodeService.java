@@ -38,6 +38,7 @@ import org.alfresco.service.cmr.dictionary.InvalidTypeException;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.QNamePattern;
 import org.alfresco.service.namespace.RegexQNamePattern;
+import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * Interface for public and internal <b>node</b> and <b>store</b> operations.
@@ -1005,4 +1006,16 @@ public interface NodeService
      */
     @Auditable(parameters = {"nodeRef", "isPrimary"})
     public int countChildAssocs(NodeRef nodeRef, boolean isPrimary) throws InvalidNodeRefException;
+
+    /**
+     * Get all aspect and node type qualified names
+     *
+     * @param nodeRef 
+     *            the node we are interested in
+     * @return Returns a set of qualified names containing the node type and all
+     *         the node aspects, or null if the node no longer exists
+     */
+    default Set<QName> getTypeAndAspectQNames(NodeRef nodeRef){
+        throw new NotImplementedException("Not yet implemented");
+    }
 }
