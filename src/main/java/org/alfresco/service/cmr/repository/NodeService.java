@@ -1017,7 +1017,6 @@ public interface NodeService
      *         the node aspects, or null if the node no longer exists
      */
     default Set<QName> getTypeAndAspectQNames(NodeRef nodeRef){
-//        throw new NotImplementedException("Not yet implemented");
         return Collections.<QName>emptySet();
     }
 }
