@@ -27,6 +27,7 @@ package org.alfresco.service.cmr.repository;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1016,6 +1017,7 @@ public interface NodeService
      *         the node aspects, or null if the node no longer exists
      */
     default Set<QName> getTypeAndAspectQNames(NodeRef nodeRef){
-        throw new NotImplementedException("Not yet implemented");
+//        throw new NotImplementedException("Not yet implemented");
+        return Collections.<QName>emptySet();
     }
 }
