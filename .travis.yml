@@ -12,13 +12,13 @@ branches:
   only:
     - master
     - /support\/.*/
+    - fix/ACS-284
 
 install: travis_retry mvn install -DskipTests=true -B -V
 
 stages:
   - test
   - release
-  - fix/ACS-284
 
 jobs:
   include:
