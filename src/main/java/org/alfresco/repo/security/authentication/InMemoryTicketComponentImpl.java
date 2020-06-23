@@ -37,6 +37,8 @@ import org.alfresco.repo.cache.SimpleCache;
 import org.alfresco.service.cmr.repository.datatype.Duration;
 import org.alfresco.util.GUID;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.safehaus.uuid.UUIDGenerator;
 
 /**
@@ -51,12 +53,15 @@ public class InMemoryTicketComponentImpl implements TicketComponent
      */
     public static final String GRANTED_AUTHORITY_TICKET_PREFIX = "TICKET_";
 
+    private static Log logger = LogFactory.getLog(InMemoryTicketComponentImpl.class);
+
     private static ThreadLocal<String> currentTicket = new ThreadLocal<String>();
     private boolean ticketsExpire;
     private Duration validDuration;
     private boolean oneOff;
     private String guid;
     private SimpleCache<String, Ticket> ticketsCache; // Can't use Ticket as it's private
+    private SimpleCache<String, String> usernameToTicketIdCache;
     private ExpiryMode expiryMode = ExpiryMode.AFTER_INACTIVITY;
     private boolean useSingleTicketPerUser = true;
 
@@ -77,6 +82,13 @@ public class InMemoryTicketComponentImpl implements TicketComponent
         this.ticketsCache = ticketsCache;
     }
     
+    /**
+     * Set the usernameToTicketIdCache as secondary map for supporting cache clustering
+     */
+    public void setUsernameToTicketIdCache (SimpleCache<String, String> usernameToTicketIdCache) {
+        this.usernameToTicketIdCache = usernameToTicketIdCache;
+    }
+
     /**
      * @param useSingleTicketPerUser the useSingleTicketPerUser to set
      */
@@ -125,6 +137,58 @@ public class InMemoryTicketComponentImpl implements TicketComponent
         this.validDuration = new Duration(validDuration);
     }
 
+    /**
+     * All put operations into ticketsCache and usernameToTicketIdCache should go through this method,
+     * so we can debug/trace ticket problems easier from the logs
+     */
+    private void putIntoCache (Ticket ticket)
+    {
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("Putting into ticketsCache " + ticketsCache.toString() + " ticket: " + ticket);
+        }
+        ticketsCache.put(ticket.getTicketId(), ticket);
+
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("Putting into usernameToTicketIdCache " + usernameToTicketIdCache.toString() + " username and ticketId of: " + ticket);
+        }
+        usernameToTicketIdCache.put(ticket.getUserName(), ticket.getTicketId());
+    }
+
+    /**
+     * All remove operations from ticketsCache and usernameToTicketIdCache should go through this method,
+     * so we can debug/trace ticket problems easier from the logs
+     */
+    private void removeFromCache (String ticketId)
+    {
+        Ticket ticket = null;
+        if(ticketId != null)
+        {
+            ticket = ticketsCache.get(ticketId);
+        }
+
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("Removing ticket from ticketsCache: " + ticketId);
+        }
+        ticketsCache.remove(ticketId);
+
+        if(ticket != null)
+        {
+            String username = ticket.getUserName();
+            String actualUserTicketIdFromCache = usernameToTicketIdCache.get(username);
+            if(ticketId.equals(actualUserTicketIdFromCache))
+            {
+                if (logger.isTraceEnabled())
+                {
+                    logger.trace("Removing ticketId from usernameToTicketIdCache for: " + username);
+                }
+                usernameToTicketIdCache.remove(username);
+            }
+        }
+    }
+
     @Override
     public String getNewTicket(String userName) throws AuthenticationException
     {
@@ -142,32 +206,34 @@ public class InMemoryTicketComponentImpl implements TicketComponent
                 expiryDate = Duration.add(new Date(), validDuration);
             }
             ticket = new Ticket(ticketsExpire ? expiryMode : ExpiryMode.DO_NOT_EXPIRE, expiryDate, userName, validDuration);
-            ticketsCache.put(ticket.getTicketId(), ticket);
+            putIntoCache(ticket);
         }
       
         String ticketString = GRANTED_AUTHORITY_TICKET_PREFIX + ticket.getTicketId();
         currentTicket.set(ticketString);
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("Setting the current ticket for this thread: " + Thread.currentThread().getName() + " to: " + ticketString);
+        }
         return ticketString;
     }
 
     private Ticket findNonExpiredUserTicket(String userName)
     {
-        for (String key : ticketsCache.getKeys())
+        String userTicketIdFromCache = usernameToTicketIdCache.get(userName);
+        if(userTicketIdFromCache != null)
         {
-            Ticket ticket = ticketsCache.get(key);
-            if (ticket != null)
+            Ticket ticketFromCache = ticketsCache.get(userTicketIdFromCache);
+            if(ticketFromCache != null)
             {
-                if(ticket.getUserName().equals(userName))
+                Ticket newTicket = ticketFromCache.getNewEntry();
+                if(newTicket != null)
                 {
-                    Ticket newTicket = ticket.getNewEntry();
-                    if(newTicket != null)
+                    if (newTicket != ticketFromCache)
                     {
-                        if (newTicket != ticket)
-                        {
-                            ticketsCache.put(key, newTicket);
-                        }
-                        return ticket;
+                        putIntoCache(newTicket);
                     }
+                    return newTicket;
                 }
             }
         }
@@ -177,26 +243,46 @@ public class InMemoryTicketComponentImpl implements TicketComponent
     @Override
     public String validateTicket(String ticketString) throws AuthenticationException
     {
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("Validating ticket: " + ticketString);
+        }
         String ticketKey = getTicketKey(ticketString);
         Ticket ticket = ticketsCache.get(ticketKey);
         if (ticket == null)
         {
-            throw new AuthenticationException("Missing ticket for " + ticketString);
+            final String msg = "Missing ticket for " + ticketString;
+            if (logger.isDebugEnabled())
+            {
+                logger.debug(msg);
+            }
+            throw new AuthenticationException(msg);
         }
         Ticket newTicket = ticket.getNewEntry();
         if (newTicket == null)
         {
-            throw new TicketExpiredException("Ticket expired for " + ticketString);
+            final String msg = "Ticket expired for " + ticketString;
+            if (logger.isDebugEnabled())
+            {
+                logger.debug(msg);
+            }
+            throw new TicketExpiredException(msg);
         }
         if (oneOff)
         {
-            ticketsCache.remove(ticketKey);
+            //this feature is deprecated
+
+            removeFromCache(ticketKey);
         }
         else if (newTicket != ticket)
         {
-            ticketsCache.put(ticketKey, newTicket);
+            putIntoCache(newTicket);
         }
         currentTicket.set(ticketString);
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("Setting the current ticket for this thread: " + Thread.currentThread().getName() + " to: " + ticketString);
+        }
         return newTicket.getUserName();
     }
 
@@ -237,7 +323,7 @@ public class InMemoryTicketComponentImpl implements TicketComponent
     public void invalidateTicketById(String ticketString)
     {
         String key = ticketString.substring(GRANTED_AUTHORITY_TICKET_PREFIX.length());
-        ticketsCache.remove(key);
+        removeFromCache(key);
     }
 
     @Override
@@ -285,16 +371,25 @@ public class InMemoryTicketComponentImpl implements TicketComponent
     @Override
     public int invalidateTickets(boolean expiredOnly)
     {
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("Invalidate all tickets, expired only: " + expiredOnly);
+        }
         Date now = new Date();
         int count = 0;
         if (!expiredOnly)
         {
             count = ticketsCache.getKeys().size();
+            if (logger.isTraceEnabled())
+            {
+                logger.trace("Clearing all tickets from the ticketsCache, that used to have size: " + count);
+            }
             ticketsCache.clear();
+            usernameToTicketIdCache.clear();
         }
         else
         {
-            Set<String> toRemove = new HashSet<String>();
+            Set<String> toRemove = new HashSet<>();
             for (String key : ticketsCache.getKeys())
             {
                 Ticket ticket = ticketsCache.get(key);
@@ -306,7 +401,7 @@ public class InMemoryTicketComponentImpl implements TicketComponent
             }
             for (String id : toRemove)
             {
-                ticketsCache.remove(id);
+                removeFromCache(id);
             }
         }
         return count;
@@ -315,17 +410,17 @@ public class InMemoryTicketComponentImpl implements TicketComponent
     @Override
     public void invalidateTicketByUser(String userName)
     {
-        Set<String> toRemove = new HashSet<String>();
+        Set<String> toRemove = new HashSet<>();
 
         for (String key : ticketsCache.getKeys())
         {
             Ticket ticket = ticketsCache.get(key);
             // Hack: The getKeys() call might return keys for null marker objects, yielding null values
-            if (ticket == null)
+            if(ticket == null)
             {
                 continue;
             }
-            if (ticket.getUserName().equals(userName))
+            if(ticket.getUserName().equals(userName))
             {
                 toRemove.add(ticket.getTicketId());
             }
@@ -333,7 +428,7 @@ public class InMemoryTicketComponentImpl implements TicketComponent
 
         for (String id : toRemove)
         {
-            ticketsCache.remove(id);
+            removeFromCache(id);
         }
     }
 
@@ -386,7 +481,6 @@ public class InMemoryTicketComponentImpl implements TicketComponent
         private final Duration validDuration;
         
         private final Duration testDuration;
-
 
         Ticket(ExpiryMode expires, Date expiryDate, String userName, Duration validDuration)
         {
@@ -472,6 +566,10 @@ public class InMemoryTicketComponentImpl implements TicketComponent
                     Duration remaining = new Duration(now, expiryDate);
                     if(remaining.compareTo(testDuration) < 0)
                     {
+                        if (logger.isTraceEnabled())
+                        {
+                            logger.trace("AFTER_INACTIVITY case, Creating new ticket based on the current one that expires at: " + expiryDate);
+                        }
                         return new Ticket(expires, Duration.add(now, validDuration), userName, validDuration, ticketId);
                     }
                     else
@@ -564,7 +662,12 @@ public class InMemoryTicketComponentImpl implements TicketComponent
 
     public static void clearCurrentSecurityContext()
     {
+        String prevTicket = currentTicket.get();
         currentTicket.set(null);
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("Clearing the current ticket for this thread: " + Thread.currentThread().getName() + " . Previous ticket was: " + prevTicket);
+        }
     }
 
     public enum ExpiryMode
