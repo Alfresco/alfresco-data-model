@@ -19,6 +19,7 @@
         <tag>6.19.0.1</tag>
     </scm>
 
+<!--
     <distributionManagement>
         <repository>
             <id>alfresco-internal</id>
@@ -29,6 +30,15 @@
             <url>https://artifacts.alfresco.com/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
+-->
+
+    <distributionManagement>
+        <repository>
+            <id>alfresco-public</id>
+            <url>https://artifacts.alfresco.com/nexus/content/repositories/releases</url>
+        </repository>
+    </distributionManagement>
+
 
     <properties>
         <!-- Files to exclude from SonarQube analysis -->
