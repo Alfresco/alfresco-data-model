@@ -270,7 +270,7 @@ public class InMemoryTicketComponentImpl implements TicketComponent
         }
         if (oneOff)
         {
-            //this feature is deprecated
+            // this feature is deprecated
 
             removeFromCache(ticketKey);
         }
