@@ -40,8 +40,6 @@ jobs:
       script:
         # Use full history for release
         - git checkout -B "${TRAVIS_BRANCH}"
-        # Force git pull
-        - git pull
         # Add email to link commits to user
         - git config user.email "${GIT_EMAIL}"
         # Skip building of release commits
