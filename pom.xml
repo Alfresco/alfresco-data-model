@@ -38,6 +38,7 @@
             source/java/org/alfresco/repo/search/impl/parsers/FTSLexer.java
         </sonar.exclusions>
         <maven.build.sourceVersion>11</maven.build.sourceVersion>
+        <dependency.lucene.version>2.4.1</dependency.lucene.version>
     </properties>
 
     <build>
@@ -391,6 +392,17 @@
                     <artifactId>javax.activation</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers</artifactId>
+            <version>${dependency.lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-snowball</artifactId>
+            <version>${dependency.lucene.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
