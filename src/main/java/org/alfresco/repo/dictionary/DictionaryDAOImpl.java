@@ -213,6 +213,7 @@ public class DictionaryDAOImpl implements DictionaryDAO, NamespaceDAO,
         String tenant = tenantService.getCurrentUserDomain();
 
         dictionaryRegistryCache.forceInChangesForThisUncommittedTransaction(tenant);
+        dictionaryRegistryCache.refresh(tenant);
 
         if (logger.isDebugEnabled())
         {
