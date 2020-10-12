@@ -36,7 +36,7 @@ import org.alfresco.service.namespace.QName;
 import org.alfresco.util.Pair;
 
 /**
- * Custom model service configuration API.
+ * Custom  model service configuration API.
  *
  * @author Jamal Kaabi-Mofrad
  */
